@@ -1,0 +1,69 @@
+version: '3.8'
+services:
+  api-gateway-8080:
+    container_name: api-gateway-8080
+    build: ./api-gateway-8080  # build using Dockerfile
+    environment:
+      - RABBITMQ_URL=amqp://admin:1234@some-rabbit:5672
+    ports:
+      - 8080:8080
+    networks:
+      - node-network
+
+  order-service:
+    container_name: order-service
+    build: ./order-service  
+    environment:
+      - DATABASE_URL=postgresql://postgres:1234@postgres_db:5432/baemin_db
+      - RABBITMQ_URL=amqp://admin:1234@some-rabbit:5672
+    networks:
+      - node-network
+
+  product-service:
+    container_name: product-service
+    build: ./product-service  
+    environment:
+      - DATABASE_URL=postgresql://postgres:1234@postgres_db:5432/baemin_db
+      - RABBITMQ_URL=amqp://admin:1234@some-rabbit:5672
+      - REDIS_HOST=some-redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=1234
+      - REDIS_TTL=5000
+      - ELASTIC_USER=elastic
+      - ELASTIC_PASS=123456
+      - ELASTIC_NODE=https://elasticsearch:9200
+    networks:
+      - node-network
+
+  shipping-service:
+    container_name: shipping-service
+    build: ./shipping-service  
+    environment:
+      - DATABASE_URL=postgresql://postgres:1234@postgres_db:5432/baemin_db
+      - RABBITMQ_URL=amqp://admin:1234@some-rabbit:5672
+    networks:
+      - node-network
+
+  stock-service:
+    container_name: stock-service
+    build: ./stock-service  
+    environment:
+      - DATABASE_URL=postgresql://postgres:1234@postgres_db:5432/baemin_db
+      - RABBITMQ_URL=amqp://admin:1234@some-rabbit:5672
+    networks:
+      - node-network
+
+  user-service:
+    container_name: user-service
+    build: ./user-service  
+    environment:
+      - DATABASE_URL=postgresql://postgres:1234@postgres_db:5432/baemin_db
+      - RABBITMQ_URL=amqp://admin:1234@some-rabbit:5672
+      - SECRET_KEY=NODEADV
+      - EXPIRES_IN=3y
+    networks:
+      - node-network
+  
+networks:
+  node-network:
+    external: true

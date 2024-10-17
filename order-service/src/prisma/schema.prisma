@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model category {
+  category_id   Int       @id @default(autoincrement())
+  category_name String?   @db.VarChar(255)
+  deleted       Boolean?  @default(false)
+  product       product[]
+  store         store[]
+}
+
+model order_cart {
+  order_cart_id Int      @id @default(autoincrement())
+  product_id    Int?
+  quantity      Int?
+  order_id      String?  @db.VarChar(255)
+  orders        orders?  @relation(fields: [order_id], references: [order_id], onDelete: NoAction, onUpdate: NoAction)
+  product       product? @relation(fields: [product_id], references: [product_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model order_tracking {
+  order_tracking_id Int       @id @default(autoincrement())
+  order_id          String?   @db.VarChar(255)
+  tracking_id       Int?
+  active            Boolean?
+  orders            orders?   @relation(fields: [order_id], references: [order_id], onDelete: NoAction, onUpdate: NoAction)
+  tracking          tracking? @relation(fields: [tracking_id], references: [tracking_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model orders {
+  order_id       String           @id @db.VarChar(255)
+  date           DateTime?        @db.Date
+  store_id       Int?
+  user_id        Int?
+  payment        String?          @db.VarChar(255)
+  address        String?          @db.VarChar(255)
+  note           String?          @db.VarChar(255)
+  fee            Int?
+  discount       Int?
+  tracking_id    Int?
+  deleted        Boolean?         @default(false)
+  order_cart     order_cart[]
+  order_tracking order_tracking[]
+  store          store?           @relation(fields: [store_id], references: [store_id], onDelete: NoAction, onUpdate: NoAction)
+  tracking       tracking?        @relation(fields: [tracking_id], references: [tracking_id], onDelete: NoAction, onUpdate: NoAction)
+  users          users?           @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model product {
+  product_id   Int          @id @default(autoincrement())
+  product_name String?      @db.VarChar(255)
+  price        Int?
+  description  String?      @db.VarChar(255)
+  stock        Int?
+  store_id     Int?
+  img          String?      @db.VarChar(255)
+  category_id  Int?
+  order_cart   order_cart[]
+  category     category?    @relation(fields: [category_id], references: [category_id], onDelete: NoAction, onUpdate: NoAction)
+  store        store?       @relation(fields: [store_id], references: [store_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model store {
+  store_id      Int       @id @default(autoincrement())
+  store_name    String?   @db.VarChar(255)
+  store_address String?   @db.VarChar(255)
+  category_id   Int?
+  img           String?   @db.VarChar(255)
+  deleted       Boolean?  @default(false)
+  orders        orders[]
+  product       product[]
+  category      category? @relation(fields: [category_id], references: [category_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model tracking {
+  tracking_id     Int              @id @default(autoincrement())
+  tracking_status String?          @db.VarChar(255)
+  order_tracking  order_tracking[]
+  orders          orders[]
+}
+
+model users {
+  user_id      Int      @id @default(autoincrement())
+  user_name    String?  @db.VarChar(255)
+  phone_number String?  @db.VarChar(255)
+  email        String?  @db.VarChar(255)
+  password     String?  @db.VarChar(255)
+  user_role    String?  @db.VarChar(255)
+  orders       orders[]
+}
